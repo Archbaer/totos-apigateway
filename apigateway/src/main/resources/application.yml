@@ -1,9 +1,14 @@
 auth:
-  login-url: "http://localhost:8081/api/auth/login"
-  public-key-url: "http://localhost:8081/api/auth/public-key"
+  login-url: "http://localhost:8081/auth/login"
+  public-key-url: "http://localhost:8081/auth/public-key"
 
+eureka:
+  client:
+    enabled: false
 
 spring:
+  main:
+    web-application-type: reactive
   cloud:
     gateway:
       routes:
@@ -14,7 +19,7 @@ spring:
         - id: users-api
           uri: http://localhost:8082
           predicates:
-            - Path=/users/**
+            - Path=/admin/**
         - id: products-api
           uri: http://localhost:8083
           predicates:

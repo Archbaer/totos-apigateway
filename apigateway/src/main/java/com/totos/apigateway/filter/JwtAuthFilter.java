@@ -3,6 +3,7 @@ package com.totos.apigateway.filter;
 import com.totos.apigateway.service.PublicKeyService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import jakarta.annotation.PostConstruct;
 import org.springframework.core.Ordered;
 import org.springframework.web.server.WebFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +26,20 @@ public class JwtAuthFilter implements WebFilter, Ordered {
     @Autowired
     private PublicKeyService publicKeyService;
 
+    @PostConstruct
+    public void init() {
+        System.out.println("✅ JwtAuthFilter initialized");
+    }
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
+        System.out.println("Incoming request to: " + path);
+
         // Skip authentication for login and registration endpoints
-        if (path.contains("/auth/login") || path.contains("/auth/register")) {
+        if (path.contains("/auth/login") || path.contains("/auth/register") || path.startsWith("/auth/test")) {
             return chain.filter(exchange);
         }
 
@@ -40,7 +48,7 @@ public class JwtAuthFilter implements WebFilter, Ordered {
         if (authHeaders == null || authHeaders.isEmpty()) {
             return unauthorizedResponse(exchange);
         }
-
+        System.out.println(authHeaders);
         String token = authHeaders.get(0).replace("Bearer ", "");
 
         try {

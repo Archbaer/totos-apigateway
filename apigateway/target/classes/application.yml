@@ -11,18 +11,6 @@ spring:
     web-application-type: reactive
   cloud:
     gateway:
-#      global cors:
-#        corsConfigurations:
-#          '[/**]':
-#            allowedOrigins: "http://localhost:3000"
-#            allowedMethods:
-#              - GET
-#              - POST
-#              - PUT
-#              - DELETE
-#              - OPTIONS
-#            allowedHeaders: "*"
-#            allowedCredentials: true
       routes:
         - id: auth-api
           uri: http://localhost:8081

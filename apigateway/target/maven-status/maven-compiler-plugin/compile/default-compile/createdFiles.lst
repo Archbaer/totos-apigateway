@@ -1,0 +1,4 @@
+com\totos\apigateway\config\CorsConfig.class
+com\totos\apigateway\ApigatewayApplication.class
+com\totos\apigateway\service\PublicKeyService.class
+com\totos\apigateway\filter\JwtAuthFilter.class

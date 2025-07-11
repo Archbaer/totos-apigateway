@@ -83,6 +83,7 @@
 	</dependencyManagement>
 
 	<build>
+		<finalName>apiGateway</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

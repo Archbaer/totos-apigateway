@@ -1,27 +1,25 @@
 package com.totos.apigateway.filter;
 
-import com.totos.apigateway.service.PublicKeyService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import jakarta.annotation.PostConstruct;
-import org.springframework.core.Ordered;
-import org.springframework.web.server.WebFilter;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
 
-import java.security.PublicKey;
-import java.security.SignatureException;
-import java.util.List;
+import com.totos.apigateway.service.PublicKeyService;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import jakarta.annotation.PostConstruct;
+import reactor.core.publisher.Mono;
 
 @Component
 public class JwtAuthFilter implements WebFilter, Ordered {
-
-    private PublicKey publicKey;
 
     @Autowired
     private PublicKeyService publicKeyService;
@@ -38,8 +36,9 @@ public class JwtAuthFilter implements WebFilter, Ordered {
 
         System.out.println("Incoming request to: " + path);
 
-        // Skip authentication for login and registration endpoints
-        if (path.contains("/auth/login") || path.contains("/auth/register") || path.startsWith("/auth/test")) {
+        // Skip authentication for public endpoints
+        if (path.contains("/auth/login") || path.contains("/auth/register") ||
+            path.startsWith("/auth/test") || path.contains("/auth/public-key")) {
             return chain.filter(exchange);
         }
 
@@ -48,7 +47,7 @@ public class JwtAuthFilter implements WebFilter, Ordered {
         if (authHeaders == null || authHeaders.isEmpty()) {
             return unauthorizedResponse(exchange);
         }
-        System.out.println(authHeaders);
+
         String token = authHeaders.get(0).replace("Bearer ", "");
 
         try {
@@ -58,17 +57,15 @@ public class JwtAuthFilter implements WebFilter, Ordered {
                     .parseClaimsJws(token)
                     .getBody();
 
-            // valid token continue the exchange
             return chain.filter(exchange);
 
-        } catch (SignatureException e) {
+        } catch (io.jsonwebtoken.JwtException e) {
+            // This catches all JWT-related exceptions
             return unauthorizedResponse(exchange);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return Mono.error(e);
         }
     }
-
-
 
     private Mono<Void> unauthorizedResponse(ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(org.springframework.http.HttpStatus.UNAUTHORIZED);
@@ -77,6 +74,6 @@ public class JwtAuthFilter implements WebFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -1;
+        return -100;
     }
 }

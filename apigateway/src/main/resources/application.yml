@@ -1,5 +1,4 @@
 auth:
-  login-url: "http://authapi:8081/auth/login"
   public-key-url: "http://authapi:8081/auth/public-key"
 
 eureka:
